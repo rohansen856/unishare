@@ -3,8 +3,8 @@ name: Commit Message Validation
 on:
   push:
     branches:
-      - main  # Adjust as needed
-  pull_request:
+      - '**'  # ✅ All branches (wildcard)
+  pull_request:  # ✅ Runs on PRs from any branch
 
 jobs:
   check-commit-message:
