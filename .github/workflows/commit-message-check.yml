@@ -1,0 +1,34 @@
+name: Commit Message Validation
+
+on:
+  push:
+    branches:
+      - main  # Change to your branch name if needed
+  pull_request:
+
+jobs:
+  check-commit-message:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Get Commit Messages
+        id: commits
+        run: |
+          echo "MESSAGES<<EOF" >> $GITHUB_ENV
+          git log --format=%s --no-merges -n 10 >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Validate Commit Messages
+        run: |
+          PATTERN="^(feat|fix|docs|style|refactor|test|chore)(\([a-z0-9\-]+\))?!?: .{1,50}"
+          while IFS= read -r message; do
+            if ! echo "$message" | grep -Eq "$PATTERN"; then
+              echo "❌ Commit message does not follow Conventional Commits format!"
+              echo "Message: '$message'"
+              exit 1
+            fi
+          done <<< "$MESSAGES"
+
