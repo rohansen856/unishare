@@ -3,7 +3,7 @@ name: Commit Message Validation
 on:
   push:
     branches:
-      - main  # Change to your branch name if needed
+      - main  # Adjust as needed
   pull_request:
 
 jobs:
@@ -17,22 +17,47 @@ jobs:
       - name: Get Commit Messages
         id: commits
         run: |
+          # Grab the last 10 commit messages (excluding merge commits)
           echo "MESSAGES<<EOF" >> $GITHUB_ENV
           git log --format=%s --no-merges -n 10 >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
       - name: Validate Commit Messages
         run: |
-          PATTERN="^(feat|fix|docs|style|refactor|test|chore)(\([a-z0-9\-]+\))?!?: .{1,50}"
+          # Regex pattern explanation:
+          #   ^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test) 
+          #       => Allowed types at the start of the commit message
+          #   (\([a-zA-Z0-9_-]+\))? 
+          #       => Optional scope in parentheses (e.g., (api))
+          #   (?:!)? 
+          #       => Optional exclamation mark for breaking changes
+          #   : 
+          #       => Required colon separator
+          #    : 
+          #       => Required space after the colon
+          #   .{1,72}$
+          #       => Subject line between 1 and 72 characters (adjustable)
+          PATTERN="^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\\([a-zA-Z0-9_-]+\\))?(?:!)?: .{1,72}$"
+          
+          INVALID=0
           while IFS= read -r message; do
-            # Skip merge commit messages
-            if echo "$message" | grep -q "^Merge "; then
-              continue
-            fi
             if ! echo "$message" | grep -Eq "$PATTERN"; then
-              echo "❌ Commit message does not follow Conventional Commits format!"
-              echo "Message: '$message'"
-              exit 1
+              echo "❌ Commit message does not follow the Conventional Commits format:"
+              echo "   '$message'"
+              INVALID=1
             fi
           done <<< "$MESSAGES"
-
+          
+          if [ $INVALID -ne 0 ]; then
+            echo ""
+            echo "Please update your commit messages to match one of the following examples:"
+            echo "  - feat: add user login functionality"
+            echo "  - fix(api): correct error handling in data fetch"
+            echo "  - docs: update README and API documentation"
+            echo "  - refactor(parser): improve algorithm efficiency"
+            echo "  - test: add tests for input validation"
+            echo "  - chore: update dependencies"
+            exit 1
+          else
+            echo "✅ All commit messages follow the Conventional Commits format!"
+          fi
