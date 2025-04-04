@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 import { Wifi, Bluetooth, Globe, Shield, ArrowUpDown } from "lucide-react";
+import { WifiDirect } from "@/components/wifi-direct";
 
 export default function Home() {
   return (
@@ -49,11 +50,12 @@ export default function Home() {
       </header>
       <div className="container mx-auto flex-1 py-6">
         <Tabs defaultValue="share" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="share">Share Files</TabsTrigger>
             <TabsTrigger value="connect">Connect</TabsTrigger>
             <TabsTrigger value="history">History</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
+            <TabsTrigger value="wifi-direct">Wifi Direct</TabsTrigger>
           </TabsList>
           <TabsContent value="share" className="space-y-4">
             <Card>
@@ -154,6 +156,19 @@ export default function Home() {
               </CardHeader>
               <CardContent>
                 <Settings />
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="wifi-direct" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Wifi Direct</CardTitle>
+                <CardDescription>
+                  Share via wifi network
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <WifiDirect />
               </CardContent>
             </Card>
           </TabsContent>
