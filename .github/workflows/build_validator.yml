@@ -1,0 +1,42 @@
+name: Tauri App Build Validator
+
+on:
+  pull_request:
+    paths:
+      - "unishare/**"
+  push:
+    paths:
+      - "unishare/**"
+
+jobs:
+  tauri-build-check:
+    name: Validate Tauri Build
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./unishare
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Rust
+        uses: actions/setup-rust@v1
+        with:
+          rust-version: stable
+
+      - name: Install Tauri CLI
+        run: cargo install tauri-cli
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install frontend dependencies
+        run: npm install
+
+      - name: Run Tauri Build
+        run: cargo tauri build --ci
+

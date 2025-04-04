@@ -4,4 +4,4 @@
 
 - ✅ correct format: feat(core): add blockchain integration
 - ❌ wrong format: bad commit message
-- valid tags: feat|fix|docs|style|refactor|test|chore
+- valid tags: build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test
