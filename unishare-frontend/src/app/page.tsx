@@ -14,13 +14,15 @@ import { DeviceConnector } from "@/components/device-connector";
 import { TransferHistory } from "@/components/transfer-history";
 import { Settings } from "@/components/settings";
 import { Badge } from "@/components/ui/badge";
+import { ThemeToggle } from "@/components/theme-toggle";
+
 import { Wifi, Bluetooth, Globe, Shield, ArrowUpDown } from "lucide-react";
 
 export default function Home() {
   return (
     <main className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-14 items-center">
+        <div className="container mx-auto flex h-14 items-center">
           <div className="flex items-center gap-2 font-semibold">
             <ArrowUpDown className="h-5 w-5" />
             <span>Unishare</span>
@@ -40,11 +42,12 @@ export default function Home() {
                   About
                 </Button>
               </Link>
+              <ThemeToggle></ThemeToggle>
             </nav>
           </div>
         </div>
       </header>
-      <div className="container flex-1 py-6">
+      <div className="container mx-auto flex-1 py-6">
         <Tabs defaultValue="share" className="space-y-4">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="share">Share Files</TabsTrigger>
@@ -156,7 +159,7 @@ export default function Home() {
           </TabsContent>
         </Tabs>
       </div>
-      <footer className="border-t py-4">
+      <footer className="border-t mx-auto py-4">
         <div className="container flex flex-col items-center justify-between gap-4 md:flex-row">
           <p className="text-center text-sm text-muted-foreground md:text-left">
             &copy; {new Date().getFullYear()} Unishare. All rights reserved.

@@ -27,7 +27,6 @@ export function Settings() {
   const [downloadPath, setDownloadPath] = useState("/Users/username/Downloads");
   const [autoLaunch, setAutoLaunch] = useState(true);
   const [notifications, setNotifications] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
   const [maxBandwidth, setMaxBandwidth] = useState([50]);
 
   return (
@@ -88,15 +87,7 @@ export function Settings() {
             />
           </div>
 
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label>Dark Mode</Label>
-              <p className="text-sm text-muted-foreground">
-                Toggle between light and dark theme
-              </p>
-            </div>
-            <Switch checked={darkMode} onCheckedChange={setDarkMode} />
-          </div>
+          {/* Removed the dark mode toggle since we now have a theme toggle in the header */}
         </div>
       </div>
 
