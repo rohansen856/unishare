@@ -1,46 +1,58 @@
-import  { useState } from "react";
+import { useState } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
 import "./App.css";
 
 function App() {
+  const [filePath, setFilePath] = useState("../test.txt"); // default test file
+  const [destinationIp, setDestinationIp] = useState("");  // user inputs IP
   const [message, setMessage] = useState("");
 
-  // Function to send a file using the Tauri command "send_file"
   async function sendFile() {
+    if (!destinationIp) {
+      setMessage("Please enter the receiver's IP address.");
+      return;
+    }
+
     try {
-      // The test file is assumed to be at the project root.
-      // Since the working directory of the tauri binary is "src-tauri",
-      // the relative path to the test file should be "../test.txt"
       const response = await invoke("send_file", {
-        filePath: "../test.txt",
-        destination: "127.0.0.1"
+        filePath,
+        destination: destinationIp,
       });
-      setMessage(`Send response: ${response}`);
+      setMessage(`✅ Sent: ${response}`);
     } catch (error) {
-      setMessage(`Error sending file: ${error}`);
+      setMessage(`❌ Error sending file: ${error}`);
     }
   }
 
-  // Function to start the receiver using the Tauri command "receive_file"
   async function receiveFile() {
     try {
       const response = await invoke("receive_file");
-      setMessage(`Receive response: ${response}`);
+      setMessage(`📥 Ready: ${response}`);
     } catch (error) {
-      setMessage(`Error receiving file: ${error}`);
+      setMessage(`❌ Error starting receiver: ${error}`);
     }
   }
 
   return (
     <div className="App">
       <h1>Unishare File Transfer</h1>
-      <div style={{ margin: "20px" }}>
-        <button onClick={sendFile}>Send File</button>
-        <button onClick={receiveFile} style={{ marginLeft: "10px" }}>
-          Receive File
-        </button>
+
+      <div className="section">
+        <label>Destination IP:</label>
+        <input
+          type="text"
+          placeholder="e.g., 192.168.0.101"
+          value={destinationIp}
+          onChange={(e) => setDestinationIp(e.target.value)}
+        />
       </div>
-      <p>{message}</p>
+
+      <div className="section">
+        <button onClick={sendFile}>Send File</button>
+        <button onClick={receiveFile}>Receive File</button>
+      </div>
+
+      <p className="status">{message}</p>
     </div>
   );
 }
