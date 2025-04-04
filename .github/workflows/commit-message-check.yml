@@ -25,6 +25,10 @@ jobs:
         run: |
           PATTERN="^(feat|fix|docs|style|refactor|test|chore)(\([a-z0-9\-]+\))?!?: .{1,50}"
           while IFS= read -r message; do
+            # Skip merge commit messages
+            if echo "$message" | grep -q "^Merge "; then
+              continue
+            fi
             if ! echo "$message" | grep -Eq "$PATTERN"; then
               echo "❌ Commit message does not follow Conventional Commits format!"
               echo "Message: '$message'"
