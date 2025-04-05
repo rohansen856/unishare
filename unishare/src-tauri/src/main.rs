@@ -15,7 +15,7 @@ async fn send_file(file_path: String, destination: String) -> Result<String, Str
     }
 }
 
-/// Specifically uses Bluetooth to send a file (simulated or real in bluetooth.rs)
+/// Specifically uses Bluetooth to send a file (using our hardcoded Bluetooth TCP simulation)
 #[tauri::command]
 async fn send_file_bluetooth(file_path: String, destination: String) -> Result<String, String> {
     match bluetooth::send_file(&file_path, &destination).await {
@@ -24,7 +24,7 @@ async fn send_file_bluetooth(file_path: String, destination: String) -> Result<S
     }
 }
 
-/// Specifically uses Bluetooth to start a receiver (simulated)
+/// Specifically uses Bluetooth to start a receiver (hardcoded TCP simulation)
 #[tauri::command]
 async fn receive_file_bluetooth() -> Result<String, String> {
     match bluetooth::start_receiver().await {

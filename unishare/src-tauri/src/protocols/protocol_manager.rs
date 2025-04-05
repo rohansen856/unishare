@@ -1,7 +1,6 @@
 use crate::protocols::{wifi_direct, webrtc, bluetooth, mobiledata};
 
-/// Selects the best available protocol and sends the file.
-/// This simulation checks in order: Wi‑Fi Direct, WebRTC, Bluetooth, Mobile Data.
+
 pub async fn send_file_via_best(file_path: &str, destination: &str) -> Result<String, Box<dyn std::error::Error>> {
     // 1) Wi‑Fi Direct
     if wifi_direct::is_available() {
@@ -16,7 +15,7 @@ pub async fn send_file_via_best(file_path: &str, destination: &str) -> Result<St
         return Ok("File sent via WebRTC".to_string());
     }
     // 3) Bluetooth
-    if bluetooth::is_available() {
+    if bluetooth::is_available().await {
         println!("Using Bluetooth for file transfer.");
         bluetooth::send_file(file_path, destination).await?;
         return Ok("File sent via Bluetooth".to_string());
@@ -42,7 +41,7 @@ pub async fn start_receiver() -> Result<String, Box<dyn std::error::Error>> {
         webrtc::start_receiver().await?;
         return Ok("Receiver started using WebRTC".to_string());
     }
-    if bluetooth::is_available() {
+    if bluetooth::is_available().await {
         println!("Starting Bluetooth receiver.");
         bluetooth::start_receiver().await?;
         return Ok("Receiver started using Bluetooth".to_string());
