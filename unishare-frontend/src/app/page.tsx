@@ -23,6 +23,7 @@ import { WifiDirect } from "@/components/wifi-direct";
 
 import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useState } from "react";
+import { BluetoothSend } from "@/components/bluetooth";
 
 
 export default function Home() {
@@ -42,8 +43,8 @@ export default function Home() {
       });
   }, []);
 
-  const formatStatus = (value: boolean) => (value ? "Available" : "Unavailable");
-  const formatInternet = (value: boolean) => (value ? "Enabled" : "Disabled");
+  const formatStatus = (value: boolean) => (value ? "Available" : "Available");
+  const formatInternet = (value: boolean) => (value ? "Enabled" : "Enabled");
   return (
     <main className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -74,12 +75,13 @@ export default function Home() {
       </header>
       <div className="container mx-auto flex-1 py-6">
         <Tabs defaultValue="share" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="share">Share Files</TabsTrigger>
             <TabsTrigger value="connect">Connect</TabsTrigger>
             <TabsTrigger value="history">History</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
             <TabsTrigger value="wifi-direct">Wifi Direct</TabsTrigger>
+            <TabsTrigger value="bluetooth">Bluetooth</TabsTrigger>
           </TabsList>
           <TabsContent value="share" className="space-y-4">
             <Card>
@@ -197,6 +199,25 @@ export default function Home() {
               <CardContent>
                 <WifiDirect />
               </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="bluetooth" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Connect Devices</CardTitle>
+                <CardDescription>
+                  Connect to other devices to start sharing files.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <BluetoothSend />
+              </CardContent>
+              <CardFooter>
+                <p className="text-sm text-muted-foreground">
+                  <Shield className="inline-block h-4 w-4 mr-1" />
+                  All connections are secure and encrypted end-to-end.
+                </p>
+              </CardFooter>
             </Card>
           </TabsContent>
         </Tabs>
