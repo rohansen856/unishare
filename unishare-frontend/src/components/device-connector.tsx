@@ -1,6 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
+
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -18,6 +21,7 @@ import {
   QrCode,
 } from "lucide-react";
 
+// Minimal device type used in UI
 type Device = {
   id: string;
   name: string;
@@ -27,43 +31,71 @@ type Device = {
 };
 
 export function DeviceConnector() {
-  const [devices, setDevices] = useState<Device[]>([
-    {
-      id: "1",
-      name: "MacBook Pro",
-      type: "laptop",
-      connectionType: "wifi",
-      status: "available",
-    },
-    {
-      id: "2",
-      name: "iPhone 13",
-      type: "mobile",
-      connectionType: "wifi",
-      status: "available",
-    },
-    {
-      id: "3",
-      name: "Windows PC",
-      type: "desktop",
-      connectionType: "internet",
-      status: "available",
-    },
-    {
-      id: "4",
-      name: "Android Tablet",
-      type: "mobile",
-      connectionType: "bluetooth",
-      status: "offline",
-    },
-  ]);
-
+  const [devices, setDevices] = useState<Device[]>([]);
   const [connectionCode, setConnectionCode] = useState("");
   const [showQRCode, setShowQRCode] = useState(false);
 
+  // On mount, let's hardcode some initial devicess
+  useEffect(() => {
+    setDevices([
+      {
+        id: "1",
+        name: "MacBook Pro",
+        type: "laptop",
+        connectionType: "wifi",
+        status: "available",
+      },
+      {
+        id: "2",
+        name: "iPhone 13",
+        type: "mobile",
+        connectionType: "wifi",
+        status: "available",
+      },
+      {
+        id: "3",
+        name: "Windows PC",
+        type: "desktop",
+        connectionType: "internet",
+        status: "available",
+      },
+      {
+        id: "4",
+        name: "Android Tablet",
+        type: "mobile",
+        connectionType: "bluetooth",
+        status: "offline",
+      },
+    ]);
+  }, []);
+
+  // Listen for Tauri events: "device-discovered"
+  useEffect(() => {
+    const unlisten = listen<string>("device-discovered", (event) => {
+      const msg = event.payload;
+      console.log("Device discovered from Rust:", msg);
+      // Parse msg if needed; For now, just push a dummy device
+      // In a real scenario, you'd parse out device info from the broadcast
+      setDevices((prev) => [
+        ...prev,
+        {
+          id: Date.now().toString(),
+          name: msg,
+          type: "desktop",
+          connectionType: "wifi",
+          status: "available",
+        },
+      ]);
+    });
+    return () => {
+      unlisten.then((fn) => fn()); // Stop listening on unmount
+    };
+  }, []);
+
+  // Connect/Disconnect
   const connectToDevice = (id: string) => {
-    setDevices(
-      devices.map((device) =>
+    setDevices((prev) =>
+      prev.map((device) =>
         device.id === id
           ? {
             ...device,
@@ -74,7 +106,28 @@ export function DeviceConnector() {
     );
   };
 
-  const getDeviceIcon = (type: "desktop" | "laptop" | "mobile") => {
+  // Tauri commands
+  async function openHotspot() {
+    try {
+      await invoke("start_hotspot");
+      alert("Hotspot opened successfully (placeholder).");
+    } catch (error) {
+      console.error("Error opening hotspot:", error);
+    }
+  }
+
+  async function scanDevices() {
+    try {
+      // Start the discovery in Rust
+      await invoke("start_hotspot_discovery");
+      alert("Started scanning for devices on UDP port 9001.");
+    } catch (error) {
+      console.error("Error scanning devices:", error);
+    }
+  }
+
+  // UI Helpers
+  function getDeviceIcon(type: "desktop" | "laptop" | "mobile") {
     switch (type) {
       case "desktop":
         return <Desktop className="h-5 w-5" />;
@@ -83,9 +136,9 @@ export function DeviceConnector() {
       case "mobile":
         return <Smartphone className="h-5 w-5" />;
     }
-  };
+  }
 
-  const getConnectionIcon = (type: "wifi" | "bluetooth" | "internet") => {
+  function getConnectionIcon(type: "wifi" | "bluetooth" | "internet") {
     switch (type) {
       case "wifi":
         return <Wifi className="h-4 w-4" />;
@@ -94,7 +147,7 @@ export function DeviceConnector() {
       case "internet":
         return <Globe className="h-4 w-4" />;
     }
-  };
+  }
 
   return (
     <Tabs defaultValue="nearby">
@@ -104,7 +157,17 @@ export function DeviceConnector() {
         <TabsTrigger value="options">Connection Options</TabsTrigger>
       </TabsList>
 
+      {/* Nearby Tab */}
       <TabsContent value="nearby" className="space-y-4 pt-4">
+        <div className="flex gap-2">
+          <Button variant="default" onClick={openHotspot}>
+            Open Hotspot
+          </Button>
+          <Button variant="outline" onClick={scanDevices}>
+            Scan Devices
+          </Button>
+        </div>
+
         <div className="grid gap-4 sm:grid-cols-2">
           {devices.map((device) => (
             <Card key={device.id} className="p-4">
@@ -148,11 +211,9 @@ export function DeviceConnector() {
             </Card>
           ))}
         </div>
-        <Button variant="outline" className="w-full">
-          Refresh Devices
-        </Button>
       </TabsContent>
 
+      {/* Code Tab */}
       <TabsContent value="code" className="space-y-6 pt-4">
         <div className="space-y-2">
           <Label htmlFor="connection-code">Enter Connection Code</Label>
@@ -194,6 +255,7 @@ export function DeviceConnector() {
         </div>
       </TabsContent>
 
+      {/* Options Tab */}
       <TabsContent value="options" className="space-y-4 pt-4">
         <div className="space-y-4">
           <div className="flex items-center justify-between">

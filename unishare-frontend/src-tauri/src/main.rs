@@ -10,7 +10,16 @@ use protocols::protocol_manager::{send_file_via_best, start_receiver};
 mod tools;
 use tools::connectivity::{check_bluetooth, check_wifi_direct, check_internet};
 
+mod device_discovery;
+use device_discovery::{start_hotspot_discovery, start_hotspot};
 use protocols::bluetooth;
+
+mod webrtc_transfer;
+use webrtc_transfer::{
+    create_webrtc_offer,
+    set_remote_description_and_send_file,
+    create_webrtc_answer,
+};
 
 #[tauri::command]
 async fn send_file(file_path: String, destination: String) -> Result<String, String> {
@@ -58,6 +67,30 @@ async fn receive_file_bluetooth() -> Result<String, String> {
     }
 }
 
+#[tauri::command]
+async fn start_webrtc_sending(file_path: String) -> Result<String, String> {
+    match create_webrtc_offer().await {
+        Ok(offer_sdp_json) => Ok(offer_sdp_json),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+#[tauri::command]
+async fn complete_webrtc_sending(file_path: String, answer_sdp_json: String) -> Result<String, String> {
+    match set_remote_description_and_send_file(&file_path, &answer_sdp_json).await {
+        Ok(_) => Ok("File sent via WebRTC successfully".into()),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+#[tauri::command]
+async fn receive_webrtc_file(offer_sdp_json: String) -> Result<String, String> {
+    match create_webrtc_answer(&offer_sdp_json).await {
+        Ok(answer_sdp_json) => Ok(answer_sdp_json),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
@@ -65,7 +98,12 @@ fn main() {
             receive_file,
             send_file_bluetooth,
             receive_file_bluetooth,
-            check_connectivity_status
+            check_connectivity_status,
+            start_hotspot,
+            start_hotspot_discovery,
+            start_webrtc_sending,
+            complete_webrtc_sending,
+            receive_webrtc_file
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
