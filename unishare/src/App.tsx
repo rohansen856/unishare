@@ -8,7 +8,7 @@ function App() {
   const [tcpMessage, setTcpMessage] = useState("");
 
   // WebRTC state
-  const [filePath, setFilePath] = useState("../test.txt"); // default test file
+  const [filePath, setFilePath] = useState("../test.txt"); // default file path for sender
   const [webrtcOffer, setWebrtcOffer] = useState("");
   const [webrtcAnswer, setWebrtcAnswer] = useState("");
   const [webrtcStatus, setWebrtcStatus] = useState("");
@@ -40,7 +40,7 @@ function App() {
   }
 
   // ----- WebRTC (Manual Signaling) Functions -----
-  // Sender: Create Offer
+  // Sender: Generate Offer
   async function startWebrtcOffer() {
     try {
       const offer = await invoke("start_webrtc_sending", { filePath });
@@ -51,7 +51,7 @@ function App() {
     }
   }
 
-  // Sender: Complete sending once receiver's answer is pasted
+  // Sender: Complete sending by setting remote answer and sending file
   async function completeWebrtcSend() {
     if (!webrtcAnswer) {
       setWebrtcStatus(
@@ -70,7 +70,7 @@ function App() {
     }
   }
 
-  // Receiver: Generate Answer from Sender's Offer
+  // Receiver: Generate Answer from sender's offer
   async function generateWebrtcAnswer() {
     if (!webrtcOffer) {
       setWebrtcStatus(
@@ -83,7 +83,9 @@ function App() {
         offerSdpJson: webrtcOffer,
       });
       setWebrtcAnswer(answer as string);
-      setWebrtcStatus("Answer generated. Copy it and send back to the sender.");
+      setWebrtcStatus(
+        "Answer generated. Copy it and send it back to the sender."
+      );
     } catch (error) {
       setWebrtcStatus(`❌ Error generating answer: ${error}`);
     }
@@ -121,11 +123,15 @@ function App() {
         <p className="status">{tcpMessage}</p>
       </section>
 
-      {/* ----- WebRTC Transfer Section ----- */}
-      <section style={{ marginBottom: "2rem" }}>
-        <h2>WebRTC Transfer (Manual Signaling)</h2>
-
-        {/* Sender's File Path */}
+      {/* ----- WebRTC Transfer Section: Sender Side ----- */}
+      <section
+        style={{
+          marginBottom: "2rem",
+          borderBottom: "1px solid #ccc",
+          paddingBottom: "1rem",
+        }}
+      >
+        <h2>WebRTC Transfer – Sender Side</h2>
         <div className="section">
           <label>File Path (Sender):</label>
           <input
@@ -135,29 +141,23 @@ function App() {
             style={{ width: "100%", padding: "0.5rem", marginBottom: "0.5rem" }}
           />
         </div>
-
-        {/* Sender: Generate Offer */}
         <div className="section">
           <button onClick={startWebrtcOffer}>
             Generate WebRTC Offer (Sender)
           </button>
-          {webrtcOffer && (
-            <>
-              <label style={{ display: "block", marginTop: "1rem" }}>
-                Sender's Offer (copy and send this to the receiver):
-              </label>
-              <textarea
-                value={webrtcOffer}
-                readOnly
-                rows={4}
-                style={{ width: "100%", padding: "0.5rem" }}
-              />
-            </>
-          )}
         </div>
-
-        {/* Sender: Paste Receiver's Answer */}
-        <div className="section" style={{ marginTop: "1rem" }}>
+        {webrtcOffer && (
+          <div className="section">
+            <label>Sender's Offer (copy and send this to the receiver):</label>
+            <textarea
+              value={webrtcOffer}
+              readOnly
+              rows={4}
+              style={{ width: "100%", padding: "0.5rem" }}
+            />
+          </div>
+        )}
+        <div className="section">
           <label>
             Paste Receiver's Answer (Sender should paste the answer here):
           </label>
@@ -168,16 +168,24 @@ function App() {
             style={{ width: "100%", padding: "0.5rem" }}
           />
           <button onClick={completeWebrtcSend} style={{ marginTop: "0.5rem" }}>
-            Complete WebRTC Send (Sender)
+            Send File via WebRTC
           </button>
         </div>
+        <p className="status">{webrtcStatus}</p>
+      </section>
 
-        <hr style={{ margin: "1rem 0" }} />
-
-        {/* Receiver: Paste Sender's Offer */}
+      {/* ----- WebRTC Transfer Section: Receiver Side ----- */}
+      <section
+        style={{
+          marginBottom: "2rem",
+          borderBottom: "1px solid #ccc",
+          paddingBottom: "1rem",
+        }}
+      >
+        <h2>WebRTC Transfer – Receiver Side</h2>
         <div className="section">
           <label>
-            For Receiver: Paste Sender's Offer (copy the offer from sender
+            Paste Sender's Offer (Receiver should paste the sender's offer
             here):
           </label>
           <textarea
@@ -192,22 +200,20 @@ function App() {
           >
             Generate WebRTC Answer (Receiver)
           </button>
-          {webrtcAnswer && (
-            <>
-              <label style={{ display: "block", marginTop: "1rem" }}>
-                Receiver's Answer (copy and send this back to the sender):
-              </label>
-              <textarea
-                value={webrtcAnswer}
-                readOnly
-                rows={4}
-                style={{ width: "100%", padding: "0.5rem" }}
-              />
-            </>
-          )}
         </div>
-
-        <p className="status">{webrtcStatus}</p>
+        {webrtcAnswer && (
+          <div className="section">
+            <label>
+              Receiver's Answer (copy and send this back to the sender):
+            </label>
+            <textarea
+              value={webrtcAnswer}
+              readOnly
+              rows={4}
+              style={{ width: "100%", padding: "0.5rem" }}
+            />
+          </div>
+        )}
       </section>
     </div>
   );
