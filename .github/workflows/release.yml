@@ -1,0 +1,46 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build Tauri App
+        run: cargo tauri build
+
+      - name: Archive artifacts
+        run: |
+          mkdir -p release
+          cp target/release/*.AppImage release/
+          cp target/release/bundle/macos/*.app release/
+          # etc. depending on your platform
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-binaries
+          path: release
+
+  create-release:
+    needs: build-release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.ref }}
+          name: "Release ${{ github.ref }}"
+          artifacts: "release/*.AppImage,release/*.app"
+          draft: false
+          prerelease: false

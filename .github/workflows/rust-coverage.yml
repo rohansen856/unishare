@@ -1,0 +1,25 @@
+name: Rust Coverage
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+      - name: Install Tarpaulin
+        run: cargo install cargo-tarpaulin
+      - name: Run coverage
+        run: |
+          cargo tarpaulin --out Xml
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: cobertura.xml
