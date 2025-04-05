@@ -66,9 +66,9 @@ export function DeviceConnector() {
       devices.map((device) =>
         device.id === id
           ? {
-              ...device,
-              status: device.status === "connected" ? "available" : "connected",
-            }
+            ...device,
+            status: device.status === "connected" ? "available" : "connected",
+          }
           : device
       )
     );
@@ -127,8 +127,8 @@ export function DeviceConnector() {
                       device.status === "connected"
                         ? "default"
                         : device.status === "available"
-                        ? "outline"
-                        : "secondary"
+                          ? "outline"
+                          : "secondary"
                     }
                   >
                     {device.status}

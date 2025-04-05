@@ -46,7 +46,7 @@ export function WifiDirect() {
     }
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-secondary p-4">
+        <div className="flex items-center justify-center bg-secondary p-4">
             <Card className="w-full max-w-md shadow-lg">
                 <CardHeader className="space-y-1">
                     <CardTitle className="text-2xl font-bold text-center flex items-center justify-center gap-2">

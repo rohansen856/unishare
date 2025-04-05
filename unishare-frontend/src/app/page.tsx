@@ -1,3 +1,5 @@
+"use client"
+
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,7 +21,29 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { Wifi, Bluetooth, Globe, Shield, ArrowUpDown } from "lucide-react";
 import { WifiDirect } from "@/components/wifi-direct";
 
+import { invoke } from "@tauri-apps/api/core";
+import { useEffect, useState } from "react";
+
+
 export default function Home() {
+  const [status, setStatus] = useState({
+    wifiDirect: false,
+    bluetooth: false,
+    internet: false,
+  });
+
+  useEffect(() => {
+    invoke("check_connectivity_status")
+      .then((res) => {
+        setStatus(res as typeof status);
+      })
+      .catch((err) => {
+        console.error("Failed to check status:", err);
+      });
+  }, []);
+
+  const formatStatus = (value: boolean) => (value ? "Available" : "Unavailable");
+  const formatInternet = (value: boolean) => (value ? "Enabled" : "Disabled");
   return (
     <main className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -69,44 +93,47 @@ export default function Home() {
                 <FileUploader />
               </CardContent>
             </Card>
+
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Wi-Fi Direct
-                  </CardTitle>
+                  <CardTitle className="text-sm font-medium">Wi-Fi Direct</CardTitle>
                   <Wifi className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">Available</div>
+                  <div className="text-2xl font-bold">
+                    {formatStatus(status.wifiDirect)}
+                  </div>
                   <p className="text-xs text-muted-foreground">
                     Truly offline transfers without internet
                   </p>
                 </CardContent>
               </Card>
+
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Bluetooth
-                  </CardTitle>
+                  <CardTitle className="text-sm font-medium">Bluetooth</CardTitle>
                   <Bluetooth className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">Available</div>
+                  <div className="text-2xl font-bold">
+                    {formatStatus(status.bluetooth)}
+                  </div>
                   <p className="text-xs text-muted-foreground">
                     Slower but reliable fallback option
                   </p>
                 </CardContent>
               </Card>
+
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Internet
-                  </CardTitle>
+                  <CardTitle className="text-sm font-medium">Internet</CardTitle>
                   <Globe className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">Enabled</div>
+                  <div className="text-2xl font-bold">
+                    {formatInternet(status.internet)}
+                  </div>
                   <p className="text-xs text-muted-foreground">
                     WebRTC and cloud fallback options
                   </p>
