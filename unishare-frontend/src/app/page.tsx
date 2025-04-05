@@ -43,8 +43,8 @@ export default function Home() {
       });
   }, []);
 
-  const formatStatus = (value: boolean) => (value ? "Available" : "Available");
-  const formatInternet = (value: boolean) => (value ? "Enabled" : "Enabled");
+  const formatStatus = (value: boolean) => (value ? "Available" : "Unavailable");
+  const formatInternet = (value: boolean) => (value ? "Enabled" : "Disabled");
   return (
     <main className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
