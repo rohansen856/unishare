@@ -3,10 +3,11 @@ import { invoke } from "@tauri-apps/api/tauri";
 import "./App.css";
 
 function App() {
-  // Default file path for testing; ensure test.txt exists at the project root.
+  // Default file path for testing, adjust if needed.
   const [filePath, setFilePath] = useState("../test.txt");
-  // Enter the destination IP or identifier. For testing on one machine, use "127.0.0.1".
-  const [destinationIp, setDestinationIp] = useState("127.0.0.1");
+  // For Wi-Fi file transfer, enter the receiver's IP.
+  // For Bluetooth, you can enter a Bluetooth identifier or use a dummy value if simulated.
+  const [destinationIp, setDestinationIp] = useState("");
   const [message, setMessage] = useState("");
 
   async function sendFile() {
@@ -15,7 +16,10 @@ function App() {
       return;
     }
     try {
-      const response = await invoke("send_file", { filePath, destination: destinationIp });
+      const response = await invoke("send_file", {
+        filePath,
+        destination: destinationIp,
+      });
       setMessage(`✅ Wi-Fi Sent: ${response}`);
     } catch (error) {
       setMessage(`❌ Error sending file via Wi-Fi: ${error}`);
@@ -37,7 +41,10 @@ function App() {
       return;
     }
     try {
-      const response = await invoke("send_file_bluetooth", { filePath, destination: destinationIp });
+      const response = await invoke("send_file_bluetooth", {
+        filePath,
+        destination: destinationIp,
+      });
       setMessage(`✅ Bluetooth Sent: ${response}`);
     } catch (error) {
       setMessage(`❌ Error sending file via Bluetooth: ${error}`);
@@ -61,7 +68,7 @@ function App() {
         <label>Destination IP/Identifier:</label>
         <input
           type="text"
-          placeholder="e.g., 127.0.0.1 or BT-ID"
+          placeholder="e.g., 192.168.0.101 or BT-ID"
           value={destinationIp}
           onChange={(e) => setDestinationIp(e.target.value)}
         />
