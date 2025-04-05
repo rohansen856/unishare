@@ -77,7 +77,8 @@ brew install unishare
 winget install unishare
 ```
 
-Or download the installer directly from our [releases page](https://github.com/unishare/releases).
+<!-- Or download the installer directly from our [releases page](https://github.com/unishare/releases). -->
+
 
 ## 📝 Usage
 
@@ -95,11 +96,11 @@ Unishare offers optional integration with the Midnight blockchain for enhanced s
 - **Decentralized Authentication**: Secure device verification before transfers
 - **Secure Key Management**: Additional layer of encryption security
 
-To enable Midnight integration:
+<!-- To enable Midnight integration:
 
 1. Go to Settings > Security
 2. Enable "Blockchain Security"
-3. Follow the setup instructions
+3. Follow the setup instructions -->
 
 ## 💻 Development
 
@@ -115,14 +116,33 @@ Unishare is built with:
 git clone https://github.com/unishare/unishare.git
 cd unishare
 
+cd unishare
+
 # Install dependencies
 npm install
 
+cd src-tauri
 # Run in development mode
 npm run tauri dev
 
 # Build for production
 npm run tauri build
+```
+
+
+## For Proper Development Preview
+
+```bash
+git clone https://github.com/unishare/unishare.git
+
+cd unishare
+
+cd unishare-frontend
+
+npm install
+
+npm run tauri dev
+
 ```
 
 ## 🔍 Technical Architecture
